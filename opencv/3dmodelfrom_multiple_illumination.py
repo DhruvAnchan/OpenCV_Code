@@ -89,4 +89,43 @@ fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
 ax.plot_surface(X, Y, depth_map, cmap='viridis', linewidth=0, antialiased=False)
 ax.set_title("Reconstructed Depth Map")
-plt.show()
+
+import plotly.graph_objects as go
+
+# === Create 3D point cloud ===
+scale = 1.0  # You can scale to exaggerate height/depth if needed
+X, Y = np.meshgrid(np.arange(w), np.arange(h))
+Z = depth_map * scale
+
+# Flatten for plotly
+x = X.flatten()
+y = Y.flatten()
+z = Z.flatten()
+
+# Use albedo as intensity for coloring
+intensity = albedo_img.flatten()
+
+# === Create Plotly 3D scatter ===
+fig = go.Figure(data=[go.Mesh3d(
+    x=x,
+    y=y,
+    z=z,
+    intensity=intensity,
+    colorscale='Viridis',
+    showscale=True,
+    opacity=1.0,
+    alphahull=0  # Set to 0 to create a solid surface
+)])
+
+fig.update_layout(
+    title='3D Photometric Stereo Model',
+    scene=dict(
+        xaxis=dict(title='X'),
+        yaxis=dict(title='Y'),
+        zaxis=dict(title='Depth'),
+        aspectmode='data'
+    )
+)
+
+fig.show()
+
